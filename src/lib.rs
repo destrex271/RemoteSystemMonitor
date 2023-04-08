@@ -16,6 +16,10 @@ pub struct Proc {
     disk_usage: DiskUsage,
 }
 
+pub struct TempInfo {
+    values: Vec<String>,
+}
+
 pub fn get_ram(sys: &mut System) -> Raminfo {
     sys.refresh_all();
 
@@ -43,4 +47,13 @@ pub fn get_processes(sys: &mut System) -> HashMap<&str, Proc> {
         map.insert(process.name(), proc);
     }
     map
+}
+
+pub fn get_temp_info(sys: &mut System) -> TempInfo {
+    let mut tempVec: Vec<String> = vec![];
+    for component in sys.components() {
+        tempVec.push(format!("{:?}", component));
+        println!("{:?}", component);
+    }
+    TempInfo { values: tempVec }
 }
