@@ -1,5 +1,5 @@
 extern crate sysinfo;
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, rc::Rc, sync::Arc};
 
 use sysinfo::{Cpu, DiskUsage, Pid, ProcessExt, System, SystemExt};
 
@@ -20,13 +20,13 @@ pub struct TempInfo {
     values: Vec<String>,
 }
 
-pub struct SystemInfo {
+pub struct SystemInfo<'a> {
     name: String,
     kernel_version: String,
     host_name: String,
     os_version: String,
     cpu_count: usize,
-    cpus: Vec<Cpu>,
+    cpus: Rc<&'a [Cpu]>,
 }
 
 pub fn get_ram(sys: &mut System) -> Raminfo {
@@ -59,23 +59,24 @@ pub fn get_processes(sys: &mut System) -> HashMap<&str, Proc> {
 }
 
 pub fn get_temp_info(sys: &mut System) -> TempInfo {
-    let mut tempVec: Vec<String> = vec![];
+    let mut temp_vec: Vec<String> = vec![];
     for component in sys.components() {
-        tempVec.push(format!("{:?}", component));
+        temp_vec.push(format!("{:?}", component));
         println!("{:?}", component);
     }
-    TempInfo { values: tempVec }
+    TempInfo { values: temp_vec }
 }
 
 pub fn get_system_info(sys: &mut System) -> SystemInfo {
     sys.refresh_cpu();
-    let cpus: Vec<Cpu> = Vec::from();
+    let cps = Rc::new(sys.cpus());
+    let cpus = cps.to_owned();
     SystemInfo {
         name: sys.name().unwrap(),
         kernel_version: sys.kernel_version().unwrap(),
         host_name: sys.host_name().unwrap(),
         os_version: sys.os_version().unwrap(),
         cpu_count: sys.cpus().len(),
-        cpus: cpus,
+        cpus,
     }
 }
