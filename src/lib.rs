@@ -1,11 +1,19 @@
 extern crate sysinfo;
-use sysinfo::{System, SystemExt};
+use std::collections::HashMap;
+
+use sysinfo::{DiskUsage, Pid, ProcessExt, System, SystemExt};
 
 pub struct Raminfo {
     used_memory: u64,
     total_memory: u64,
     used_swap: u64,
     total_swap: u64,
+}
+
+pub struct Proc {
+    pid: Pid,
+    name: String,
+    disk_usage: DiskUsage,
 }
 
 pub fn get_ram(sys: &mut System) -> Raminfo {
@@ -22,4 +30,17 @@ pub fn get_ram(sys: &mut System) -> Raminfo {
         used_swap,
         total_swap,
     }
+}
+
+pub fn get_processes(sys: &mut System) -> HashMap<&str, Proc> {
+    let mut map: HashMap<&str, Proc> = HashMap::new();
+    for (pid, process) in sys.processes() {
+        let proc: Proc = Proc {
+            pid: process.pid(),
+            name: String::from(process.name()),
+            disk_usage: process.disk_usage(),
+        };
+        map.insert(process.name(), proc);
+    }
+    map
 }
