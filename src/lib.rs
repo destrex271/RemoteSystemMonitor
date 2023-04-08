@@ -2,8 +2,7 @@ extern crate sysinfo;
 use reqwest::Client;
 use serde::Serialize;
 use serde_json::json;
-use std::{collections::HashMap, rc::Rc};
-use sysinfo::{Cpu, DiskUsage, Pid, ProcessExt, System, SystemExt};
+use sysinfo::{Cpu, CpuExt, DiskUsage, Pid, ProcessExt, System, SystemExt};
 
 pub async fn send_data_to_django(
     sysinfo: SystemInfo,
@@ -71,6 +70,7 @@ pub struct SystemInfo {
     host_name: String,
     os_version: String,
     cpu_count: usize,
+    cpu_usage: Vec<f32>,
 }
 
 pub fn get_ram(sys: &mut System) -> Raminfo {
@@ -117,7 +117,11 @@ pub fn get_temp_info(sys: &mut System) -> TempInfo {
 
 pub fn get_system_info(sys: &mut System) -> SystemInfo {
     sys.refresh_cpu();
-    // let cps = Rc::new(sys.cpus());
+    let cps = sys.cpus();
+    let mut usage = vec![];
+    for cpu in cps {
+        usage.push(cpu.cpu_usage());
+    }
     // let cpus = cps.to_owned();
     SystemInfo {
         name: sys.name().unwrap(),
@@ -125,5 +129,6 @@ pub fn get_system_info(sys: &mut System) -> SystemInfo {
         host_name: sys.host_name().unwrap(),
         os_version: sys.os_version().unwrap(),
         cpu_count: sys.cpus().len(),
+        cpu_usage: usage,
     }
 }
