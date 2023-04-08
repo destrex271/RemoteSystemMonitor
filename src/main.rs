@@ -11,7 +11,7 @@ async fn main() {
 
     let mut sysr = System::new_all();
     let procs = get_processes(&mut sysr);
-    println!("{:?}", procs);
+    // println!("{:?}", procs);
 
     let mut sysr = System::new_all();
     let temps = get_temp_info(&mut sysr);

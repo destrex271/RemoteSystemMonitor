@@ -11,26 +11,30 @@ pub async fn send_data_to_django(
     tp_inf: TempInfo,
 ) -> Result<(), ()> {
     let client = Client::new();
-    let url1 = "http://127.0.0.1:8000/items/temp";
-    let url2 = "http://127.0.0.1:8000/items/sys";
-    let url3 = "http://127.0.0.1:8000/items/ram";
-    let url4 = "http://127.0.0.1:8000/items/processes";
-    let payload1 = json!(tp_inf);
+    // let url1 = "/temp";
+    // let url2 = "http://127.0.0.1:8000/items/sys";
+    // let url3 = "https://hackeclipse.azurewebsites.net/api/ram";
+    // let url3 = "https://hackeclipse.azurewebsites.net/api/sys/";
+    let url2 = "https://hackeclipse.azurewebsites.net/api/sys/";
+    let url3 = "https://hackeclipse.azurewebsites.net/api/ram/";
+    let url4 = "https://hackeclipse.azurewebsites.net/api/process/";
+    // let payload1 = json!(tp_inf);
     let payload2 = json!(sysinfo);
     let payload3 = json!(raminfo);
     let payload4 = json!(prcs[0]);
-    println!("{:?}", payload4);
-    let response1 = client.post(url1).json(&payload1).send().await.unwrap();
+    // println!("{:?}", payload4);
+    // let response1 = client.post(url1).json(&payload1).send().await.unwrap();
     let response2 = client.post(url2).json(&payload2).send().await.unwrap();
     let response3 = client.post(url3).json(&payload3).send().await.unwrap();
     let response4 = client.post(url4).json(&payload4).send().await.unwrap();
-    if response1.status().is_success()
-        && response2.status().is_success()
+    // if response1.status().is_success()
+    if response2.status().is_success()
         && response3.status().is_success()
         && response4.status().is_success()
     {
         Ok(())
     } else {
+        println!("{:?}", response3);
         Err(())
     }
 }
@@ -70,7 +74,7 @@ pub struct SystemInfo {
     host_name: String,
     os_version: String,
     cpu_count: usize,
-    cpu_usage: Vec<f32>,
+    // cpu_usage: Vec<f32>,
 }
 
 pub fn get_ram(sys: &mut System) -> Raminfo {
@@ -110,7 +114,7 @@ pub fn get_temp_info(sys: &mut System) -> TempInfo {
     let mut temp_vec: Vec<String> = vec![];
     for component in sys.components() {
         temp_vec.push(format!("{:?}", component));
-        println!("{:?}", component);
+        // println!("{:?}", component);
     }
     TempInfo { values: temp_vec }
 }
@@ -129,6 +133,6 @@ pub fn get_system_info(sys: &mut System) -> SystemInfo {
         host_name: sys.host_name().unwrap(),
         os_version: sys.os_version().unwrap(),
         cpu_count: sys.cpus().len(),
-        cpu_usage: usage,
+        // cpu_usage: usage,
     }
 }
