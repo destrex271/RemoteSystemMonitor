@@ -1,8 +1,9 @@
 extern crate sysinfo;
-use std::{collections::HashMap, rc::Rc, sync::Arc};
+use std::{collections::HashMap, rc::Rc};
 
 use sysinfo::{Cpu, DiskUsage, Pid, ProcessExt, System, SystemExt};
 
+#[derive(Debug)]
 pub struct Raminfo {
     used_memory: u64,
     total_memory: u64,
@@ -10,16 +11,19 @@ pub struct Raminfo {
     total_swap: u64,
 }
 
+#[derive(Debug)]
 pub struct Proc {
     pid: Pid,
     name: String,
     disk_usage: DiskUsage,
 }
 
+#[derive(Debug)]
 pub struct TempInfo {
     values: Vec<String>,
 }
 
+#[derive(Debug)]
 pub struct SystemInfo<'a> {
     name: String,
     kernel_version: String,
@@ -47,7 +51,7 @@ pub fn get_ram(sys: &mut System) -> Raminfo {
 
 pub fn get_processes(sys: &mut System) -> HashMap<&str, Proc> {
     let mut map: HashMap<&str, Proc> = HashMap::new();
-    for (pid, process) in sys.processes() {
+    for (_, process) in sys.processes() {
         let proc: Proc = Proc {
             pid: process.pid(),
             name: String::from(process.name()),
