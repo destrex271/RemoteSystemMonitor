@@ -2,6 +2,32 @@ extern crate sysinfo;
 use std::{collections::HashMap, sync::Arc};
 
 use sysinfo::{Cpu, DiskUsage, Pid, ProcessExt, System, SystemExt};
+use reqwest::{Client, Error};
+use serde_json::json;
+
+async fn send_data_to_django() -> Result<(), Error> {
+    let client = Client::new();
+    let url = "http://dgangourl.com/api/data/";
+    let payload = json!({
+        "data": "data",
+    });
+    let response = client.post(url)
+        .json(&payload)
+        .send()
+        .await?;
+    if response.status().is_success() {
+        Ok(())
+    } else {
+        Err("Failed to send data to Django".into())
+    }
+}
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    loop {
+        send_data_to_django().await?;
+        tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+    }
+}
 
 pub struct Raminfo {
     used_memory: u64,
