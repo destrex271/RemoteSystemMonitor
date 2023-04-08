@@ -1,7 +1,7 @@
 extern crate sysinfo;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
-use sysinfo::{DiskUsage, Pid, ProcessExt, System, SystemExt};
+use sysinfo::{Cpu, DiskUsage, Pid, ProcessExt, System, SystemExt};
 
 pub struct Raminfo {
     used_memory: u64,
@@ -18,6 +18,15 @@ pub struct Proc {
 
 pub struct TempInfo {
     values: Vec<String>,
+}
+
+pub struct SystemInfo {
+    name: String,
+    kernel_version: String,
+    host_name: String,
+    os_version: String,
+    cpu_count: usize,
+    cpus: Vec<Cpu>,
 }
 
 pub fn get_ram(sys: &mut System) -> Raminfo {
@@ -56,4 +65,17 @@ pub fn get_temp_info(sys: &mut System) -> TempInfo {
         println!("{:?}", component);
     }
     TempInfo { values: tempVec }
+}
+
+pub fn get_system_info(sys: &mut System) -> SystemInfo {
+    sys.refresh_cpu();
+    let cpus: Vec<Cpu> = Vec::from();
+    SystemInfo {
+        name: sys.name().unwrap(),
+        kernel_version: sys.kernel_version().unwrap(),
+        host_name: sys.host_name().unwrap(),
+        os_version: sys.os_version().unwrap(),
+        cpu_count: sys.cpus().len(),
+        cpus: cpus,
+    }
 }
