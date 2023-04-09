@@ -9,3 +9,4 @@ edition = "2021"
 sysinfo = "0.28.4"
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
+rdkafka-sys = "4.3.0+1.9.2"

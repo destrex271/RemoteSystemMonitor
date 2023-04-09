@@ -5,29 +5,23 @@ use sysinfo::{Cpu, DiskUsage, Pid, ProcessExt, System, SystemExt};
 use reqwest::{Client, Error};
 use serde_json::json;
 
-async fn send_data_to_django() -> Result<(), Error> {
-    let client = Client::new();
-    let url = "http://dgangourl.com/api/data/";
-    let payload = json!({
-        "data": "data",
-    });
-    let response = client.post(url)
-        .json(&payload)
-        .send()
-        .await?;
-    if response.status().is_success() {
-        Ok(())
-    } else {
-        Err("Failed to send data to Django".into())
-    }
-}
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-    loop {
-        send_data_to_django().await?;
-        tokio::time::sleep(std::time::Duration::from_secs(60)).await;
-    }
-}
+use rdkafka::config::ClientConfig;
+use rdkafka::producer::{BaseProducer, BaseRecord};
+
+let broker = "localhost:9092";
+let topic = "my_topic";
+let message = "my_command";
+
+let producer: BaseProducer = ClientConfig::new()
+    .set("bootstrap.servers", broker)
+    .set("message.timeout.ms", "5000")
+    .create()
+    .expect("Producer creation error");
+
+producer.send(
+    BaseRecord::to(topic).payload(message)
+).expect("Failed to send message");
+
 
 pub struct Raminfo {
     used_memory: u64,
@@ -105,3 +99,5 @@ pub fn get_system_info(sys: &mut System) -> SystemInfo {
         cpus: cpus,
     }
 }
+
+
